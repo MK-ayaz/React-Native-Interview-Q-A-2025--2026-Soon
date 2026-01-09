@@ -139,7 +139,7 @@ This section outlines essential React Native modules, categorized and prioritize
   <tbody>
     <tr>
       <td><span class="category-common">Most Common</span></td>
-      <td><code>npm install @react-navigation/native @react-navigation/native-stack</code></td>
+      <td><code>npm install @react-navigation/native @react-navigation/native-stack</code><br/>(and other navigators like tabs/drawer)</td>
       <td>The standard, flexible, and extensible navigation solution for React Native apps.</td>
       <td>Authentication flows, tab/drawer navigation, deep linking, screen transitions.</td>
     </tr>
@@ -198,6 +198,42 @@ This section outlines essential React Native modules, categorized and prioritize
       <td>Formatting dates/times for display, performing date calculations (countdowns), handling timezones/localization.</td>
     </tr>
     <tr>
+      <td><span class="category-important">Important</span></td>
+      <td><code>npm install react-native-webview</code></td>
+      <td>A `WebView` component for rendering web content in a native view.</td>
+      <td>Displaying internal web pages, integrating third-party web services (e.g., payment gateways), rendering rich HTML content.</td>
+    </tr>
+    <tr>
+      <td><span class="category-important">Important</span></td>
+      <td><code>npm install react-native-camera</code> / <code>npm install react-native-image-picker</code></td>
+      <td>Provides access to device camera and photo library for capturing images/videos.</td>
+      <td>Taking photos/videos, selecting images from gallery, barcode/QR code scanning.</td>
+    </tr>
+    <tr>
+      <td><span class="category-important">Important</span></td>
+      <td><code>npm install react-native-keychain</code></td>
+      <td>Keychain/Keystore access for storing sensitive data securely.</td>
+      <td>Securely storing user credentials, API keys, or other sensitive information.</td>
+    </tr>
+    <tr>
+      <td><span class="category-important">Important</span></td>
+      <td><code>npm install react-native-fs</code></td>
+      <td>Native file system access for reading, writing, and managing files.</td>
+      <td>Offline data storage, caching large files, managing user-generated content.</td>
+    </tr>
+    <tr>
+      <td><span class="category-important">Important</span></td>
+      <td><code>npm install react-native-image-crop-picker</code></td>
+      <td>Provides a powerful and highly customizable image picker with cropping functionality.</td>
+      <td>User profile picture selection, image editing, uploading images with specific dimensions.</td>
+    </tr>
+    <tr>
+      <td><span class="category-important">Important</span></td>
+      <td><code>npm install react-native-pdf</code></td>
+      <td>A PDF viewer component for displaying PDF documents within your app.</td>
+      <td>Displaying e-books, invoices, reports, or other PDF-based content.</td>
+    </tr>
+    <tr>
       <td><span class="category-need-based">Need-Based</span></td>
       <td><code>npm install react-native-maps</code></td>
       <td>Customizable Map component for integrating geographical maps into your application.</td>
@@ -244,6 +280,54 @@ This section outlines essential React Native modules, categorized and prioritize
       <td><code>npm install i18n-js</code></td>
       <td>A simple library to provide i18n translations to your React Native app.</td>
       <td>Supporting multiple languages, adapting UI to different cultures, globalizing applications.</td>
+    </tr>
+    <tr>
+      <td><span class="category-need-based">Need-Based</span></td>
+      <td><code>npm install react-native-biometrics</code></td>
+      <td>Provides an interface for biometric authentication (Face ID, Touch ID, Android Biometrics).</td>
+      <td>Implementing secure login with biometrics, protecting sensitive app sections.</td>
+    </tr>
+    <tr>
+      <td><span class="category-need-based">Need-Based</span></td>
+      <td><code>npm install react-native-svg</code></td>
+      <td>Render SVG images in React Native, providing support for vector graphics.</td>
+      <td>Displaying scalable vector icons, complex custom graphics, dynamic data visualizations.</td>
+    </tr>
+    <tr>
+      <td><span class="category-need-based">Need-Based</span></td>
+      <td><code>npm install react-native-calendar-events</code></td>
+      <td>Access and manage calendar events on the device.</td>
+      <td>Creating/reading calendar events, integrating with personal/work schedules.</td>
+    </tr>
+    <tr>
+      <td><span class="category-need-based">Need-Based</span></td>
+      <td><code>npm install react-native-background-fetch</code></td>
+      <td>Enables apps to perform background tasks, like data fetching, at opportune moments.</td>
+      <td>Periodically syncing data, refreshing content, running small background processes.</td>
+    </tr>
+    <tr>
+      <td><span class="category-need-based">Need-Based</span></td>
+      <td><code>npm install react-native-ble-plx</code></td>
+      <td>A powerful and flexible library for Bluetooth Low Energy (BLE) communication.</td>
+      <td>Interacting with IoT devices, wearables, and other BLE peripherals.</td>
+    </tr>
+    <tr>
+      <td><span class="category-need-based">Need-Based</span></td>
+      <td><code>npm install react-native-html-to-pdf</code></td>
+      <td>Convert HTML content to a PDF document directly within the app.</td>
+      <td>Generating invoices, reports, or shareable documents from dynamic HTML.</td>
+    </tr>
+    <tr>
+      <td><span class="category-need-based">Need-Based</span></td>
+      <td><code>npm install lottie-react-native</code></td>
+      <td>Render beautiful Lottie animations in your React Native app.</td>
+      <td>Adding high-quality, scalable animations for loading states, onboarding, or micro-interactions.</td>
+    </tr>
+    <tr>
+      <td><span class="category-need-based">Need-Based</span></td>
+      <td><code>npm install react-native-haptic-feedback</code></td>
+      <td>Trigger native haptic feedback (vibrations) on iOS and Android.</td>
+      <td>Providing tactile feedback for user actions (e.g., successful submission, long press).</td>
     </tr>
   </tbody>
 </table>
