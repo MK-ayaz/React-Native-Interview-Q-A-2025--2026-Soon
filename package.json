@@ -1,0 +1,25 @@
+{
+  "name": "react-native-interview-qa",
+  "version": "1.0.0",
+  "description": "Comprehensive React Native interview preparation guide for senior/mid-level roles.",
+  "main": "index.js",
+  "scripts": {
+    "lint": "markdownlint **/*.md",
+    "format": "prettier --write **/*.md"
+  },
+  "keywords": [
+    "react-native",
+    "interview",
+    "questions",
+    "answers",
+    "senior",
+    "architecture",
+    "performance"
+  ],
+  "author": "DevMaster AI",
+  "license": "MIT",
+  "devDependencies": {
+    "markdownlint-cli": "^0.40.0",
+    "prettier": "^3.2.5"
+  }
+}
