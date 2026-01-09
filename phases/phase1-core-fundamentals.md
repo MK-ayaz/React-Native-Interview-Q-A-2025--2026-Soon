@@ -2,68 +2,78 @@
 
 # 🎯 Phase 01: Core React Native Fundamentals
 
+<div align="center">
+  <img src="https://img.shields.io/badge/Level-Senior-red?style=for-the-badge" alt="Senior Level" />
+  <img src="https://img.shields.io/badge/Status-Complete-green?style=for-the-badge" alt="Status Complete" />
+</div>
+
 ---
 
+## 📋 Table of Contents
+1. [Architecture: Old vs New](#11-react-native-architecture-old-vs-new-architecture)
+2. [JSI Deep Dive](#12-javascript-interface-jsi-deep-dive)
+3. [TurboModules vs Legacy](#13-turbomodules-vs-legacy-native-modules)
+4. [Fabric Renderer](#14-fabric-renderer-architecture)
+5. [Metro Bundler Optimization](#15-metro-bundler-optimization)
+6. [Hermes Engine vs JSC](#16-hermes-engine-vs-jsc)
+7. [Threading Model](#17-react-native-threading-model)
+8. [Codegen & TypeScript](#18-codegen-and-typescript-integration)
+9. [Bridge Communication](#19-react-native-bridge-communication-patterns)
+10. [Rendering Pipeline](#110-react-native-s-rendering-pipeline)
+11. [RAM Bundles](#111-ram-bundles-vs-regular-bundles)
+12. [Module Resolution](#112-react-native-s-module-resolution-strategy)
+13. [Migration Strategy](#113-new-architecture-migration-strategy)
+14. [Build Systems](#114-react-native-s-build-system-cmake-vs-gradle)
+15. [Reloading Mechanisms](#115-react-native-s-hot-reloading-vs-live-reloading)
 
-**Senior interviewers LOVE these questions** - they separate juniors from professionals. You must explain how React Native works internally.
+---
 
-### 1.1 **React Native Architecture: Old vs New Architecture**
+> [!IMPORTANT]
+> **Senior interviewers LOVE these questions** - they separate juniors from professionals. You must be able to explain how React Native works internally, not just how to use it.
+
+---
+
+### 1.1 React Native Architecture: Old vs New Architecture
 
 **Question:** *"Explain React Native's architecture evolution. Why did they move from the Bridge to JSI?"*
 
-**Perfect Answer Structure:**
-```
-React Native has evolved through two major architectures:
+#### 💡 The Core Concept
+React Native has evolved from a message-passing architecture to a direct-reference architecture.
 
-🔴 OLD ARCHITECTURE (Pre-0.60):
-- Uses JavaScript Bridge for communication
-- Asynchronous JSON message passing
-- Threading: JS Thread ↔ Bridge ↔ Native Threads
-- Performance bottleneck due to serialization overhead
+| Feature | Old Architecture (Bridge) | New Architecture (JSI) |
+| :--- | :--- | :--- |
+| **Communication** | Asynchronous JSON Messages | Direct C++ Object References |
+| **Serialization** | Required (Expensive) | Zero-copy (Direct Access) |
+| **Threading** | JS Thread ↔ Bridge ↔ Native | Shared Memory Access |
+| **Performance** | Bottlenecked by JSON overhead | 2-10x faster native calls |
 
-🟢 NEW ARCHITECTURE (0.60+):
-- JavaScript Interface (JSI) replaces Bridge
-- Direct C++ object references between JS and Native
-- TurboModules for efficient native module calls
-- Fabric Renderer for improved rendering performance
-```
+#### 🚀 Senior Insight: Why the change?
+The Bridge was the single biggest performance bottleneck. Every interaction (scroll, touch, data fetch) had to be serialized into a JSON string, sent over the bridge, and deserialized on the other side. JSI (JavaScript Interface) allows JS to hold a reference to a C++ object, making native calls synchronous and incredibly fast.
 
-**Why the change?**
-- Bridge serialized everything to JSON → huge overhead
-- JSI allows direct object references → zero-copy communication
-- 2-10x performance improvement for native module calls
+#### 🪤 Follow-up Trap
+> *"When would you still use the old Bridge architecture?"*
+>
+> **Answer:** You shouldn't for new projects. However, legacy applications might stay on the Bridge due to the complexity of migrating custom native modules that aren't yet compatible with TurboModules or Fabric.
 
-**Follow-up Trap:** *"When would you still use the old Bridge architecture?"*
-**Answer:** Only for legacy apps. New apps should use New Architecture. Migration is complex but worth it for performance.
-
-**Real-World Example:**
+#### 💻 Real-World Comparison
 ```javascript
 // OLD BRIDGE: Expensive JSON serialization
 NativeModules.MyModule.getData().then(result => console.log(result));
 
 // NEW ARCHITECTURE: Direct C++ calls via JSI
 const myModule = TurboModuleRegistry.get('MyTurboModule');
-const result = myModule.getData(); // Direct native call
+const result = myModule.getData(); // Direct synchronous native call
 ```
 
 ---
 
-### 1.2 **JavaScript Interface (JSI) Deep Dive**
+### 1.2 JavaScript Interface (JSI) Deep Dive
 
 **Question:** *"How does JSI enable direct communication between JavaScript and native code?"*
 
-**Perfect Answer Structure:**
-```
-JSI is a lightweight C++ API that:
+#### 🛠️ Technical Implementation
+JSI is a lightweight C++ API that allows the JavaScript engine to talk directly to the native host environment.
 
-✅ Creates persistent JavaScript objects on native side
-✅ Eliminates JSON serialization overhead
-✅ Enables synchronous native method calls
-✅ Supports object references across the JS-Native boundary
-✅ Powers TurboModules and Fabric Renderer
-```
-
-**Technical Implementation:**
 ```cpp
 // JSI HostObject allows JS to hold native C++ objects
 class MyTurboModule : public jsi::HostObject {
@@ -76,36 +86,27 @@ class MyTurboModule : public jsi::HostObject {
 };
 ```
 
-**Follow-up Trap:** *"What's the biggest limitation of JSI?"*
-**Answer:** JSI objects can't survive app reloads in development. They need proper cleanup.
+#### ✅ Key Advantages
+- **Synchronous Execution**: You can call native functions and get the result immediately, just like a standard JS function.
+- **Shared Memory**: JS and Native share the same memory space for specific objects.
+- **Engine Agnostic**: JSI isn't tied to a specific JS engine (like Hermes or V8).
 
 ---
 
-### 1.3 **TurboModules vs Legacy Native Modules**
+### 1.3 TurboModules vs Legacy Native Modules
 
 **Question:** *"Compare TurboModules with legacy native modules. When should you use each?"*
 
-**Perfect Answer Structure:**
-```
-🚀 TURBOMODULES (New Architecture):
-- Synchronous native calls possible
-- JSI-powered, no JSON serialization
-- Lazy loading reduces bundle size
-- Better performance for frequent native operations
+#### 🚀 TurboModules (New)
+- **Lazy Loading**: Native modules are only loaded when first used, improving app startup time.
+- **Type Safety**: Strongly typed interfaces via Codegen.
+- **Performance**: Direct JSI calls instead of Bridge messages.
 
-📦 LEGACY NATIVE MODULES (Old Architecture):
-- Asynchronous only (Promise-based)
-- JSON serialization overhead
-- Eager loading increases bundle size
-- Better for one-off operations
+#### 📦 Legacy Modules (Old)
+- **Eager Loading**: All modules are loaded at startup, increasing memory pressure and startup time.
+- **Promise-based**: Always asynchronous communication.
 
-Migration Strategy:
-1. New features → TurboModules
-2. Existing modules → Gradually migrate
-3. Performance-critical code → Priority migration
-```
-
-**Code Comparison:**
+#### 💻 Code Comparison
 ```javascript
 // LEGACY MODULE: Async + JSON overhead
 const result = await NativeModules.ImageProcessor.resizeImage(uri, 300);
@@ -115,65 +116,33 @@ const imageProcessor = TurboModuleRegistry.get('ImageProcessor');
 const result = imageProcessor.resizeImageSync(uri, 300); // Synchronous!
 ```
 
-**Follow-up Trap:** *"Can TurboModules be used in Expo apps?"*
-**Answer:** No, Expo uses managed workflow. TurboModules require bare workflow for native code integration.
-
 ---
 
-### 1.4 **Fabric Renderer Architecture**
+### 1.4 Fabric Renderer Architecture
 
 **Question:** *"Explain how Fabric Renderer improves React Native's rendering performance."*
 
-**Perfect Answer Structure:**
-```
-Fabric is React Native's new rendering system:
+#### 🎨 The Three Phases of Fabric
+1. **Render Phase**: React creates the virtual DOM.
+2. **Commit Phase**: Fabric creates the Shadow Tree (layout calculation).
+3. **Mount Phase**: Shadow Tree is converted into platform-specific native views.
 
-🎨 THREE PHASES:
-1. Render Phase: React creates virtual DOM
-2. Commit Phase: Fabric creates Shadow Tree
-3. Mount Phase: Shadow Tree → Native views
-
-✨ KEY IMPROVEMENTS:
-- Multithreading: Render on background thread
-- Async rendering: No blocking of JS thread
-- Better layout: More efficient Flexbox calculations
-- Memory efficient: Reduced object allocations
-```
-
-**Performance Impact:**
-- 50-70% faster initial renders
-- Smoother animations (60fps consistent)
-- Reduced memory pressure
-- Better responsiveness during heavy computations
-
-**Follow-up Trap:** *"Does Fabric change how you write React components?"*
-**Answer:** No, it's backward compatible. Your JSX and component logic remain the same.
+#### ✨ Key Improvements
+- **Multithreading**: Layout calculations can happen on background threads without blocking the JS thread.
+- **Synchronous Updates**: Essential for things like `TextInput` where the UI must stay in sync with the user's typing immediately.
+- **Improved Priority**: High-priority updates (like animations) can interrupt lower-priority work.
 
 ---
 
-### 1.5 **Metro Bundler Optimization**
+### 1.5 Metro Bundler Optimization
 
 **Question:** *"How does Metro bundler optimize React Native apps for production?"*
 
-**Perfect Answer Structure:**
-```
-Metro handles module resolution and bundling:
+#### 🔧 Core Optimization Techniques
+- **Tree Shaking**: Removing unused code from the final bundle.
+- **Inline Requires**: Delaying the execution of modules until they are needed.
+- **RAM Bundles**: Splitting the bundle into multiple files that are loaded on demand.
 
-🔧 CORE FEATURES:
-- Module resolution with platform extensions (.ios.js, .android.js)
-- Tree shaking removes unused code
-- Code splitting for dynamic imports
-- Minification and compression
-- Source map generation for debugging
-
-📦 OPTIMIZATION TECHNIQUES:
-- Dead code elimination
-- Asset optimization (images, fonts)
-- Polyfill injection based on platform
-- RAM bundle for faster startup
-```
-
-**Advanced Configuration:**
 ```javascript
 // metro.config.js
 module.exports = {
@@ -181,481 +150,130 @@ module.exports = {
     getTransformOptions: async () => ({
       transform: {
         experimentalImportSupport: false,
-        inlineRequires: true, // Reduces bundle size
+        inlineRequires: true, // Crucial for performance!
       },
     }),
-  },
-  resolver: {
-    alias: {
-      '@components': './src/components',
-    },
   },
 };
 ```
 
-**Follow-up Trap:** *"What's the difference between Metro and Webpack?"*
-**Answer:** Metro is RN-specific, optimized for mobile bundling. Webpack is web-focused. Metro handles platform-specific resolution and RAM bundles.
-
 ---
 
-### 1.6 **Hermes Engine vs JSC**
+### 1.6 Hermes Engine vs JSC
 
 **Question:** *"Compare Hermes and JavaScriptCore engines. When should you choose each?"*
 
-**Perfect Answer Structure:**
-```
-🟢 HERMES (Recommended for production):
-- Facebook's JS engine optimized for RN
-- Pre-compiles JS to bytecode → faster startup
-- Smaller binary size
-- Better memory management
-- Ahead-of-time compilation
+#### 🟢 Hermes (Facebook's Optimized Engine)
+- **Bytecode Pre-compilation**: Compiles JS to bytecode during the build process, not at runtime.
+- **Memory Efficient**: Optimized for mobile devices with limited RAM.
+- **Faster TTI**: Significantly reduces "Time to Interactive."
 
-🔴 JAVASCRIPTCORE (Default on iOS):
-- Apple's Nitro engine on iOS
-- Just-in-time compilation
-- Larger app size
-- More memory usage
-- Better debugging experience
-```
-
-**Performance Metrics:**
-```
-Startup Time: Hermes 2-3x faster
-Memory Usage: Hermes 20-30% less
-App Size: Hermes 5-10% smaller
-```
-
-**Follow-up Trap:** *"Can you use Hermes in development?"*
-**Answer:** Yes, but debugging is harder. Use JSC in dev for better debugging, Hermes in production for performance.
+#### 🔴 JavaScriptCore (iOS Default)
+- **JIT Compilation**: Compiles code as it runs, which can lead to spikes in CPU usage.
+- **Legacy Support**: Better compatibility with some very old JS features, but generally less efficient for RN.
 
 ---
 
-### 1.7 **React Native Threading Model**
+### 1.7 React Native Threading Model
 
 **Question:** *"Explain React Native's threading architecture and how it affects performance."*
 
-**Perfect Answer Structure:**
-```
-React Native uses multiple threads:
+#### 🧵 The Four Main Threads
+1. **Main Thread (UI)**: Handles native UI rendering and user interactions.
+2. **JS Thread**: Where your business logic and React components live.
+3. **Shadow Thread**: Handles layout calculations (Yoga engine).
+4. **Native Modules Thread**: Used by native modules for background tasks (e.g., File I/O).
 
-🧵 MAIN THREAD (UI Thread):
-- Handles native UI rendering
-- Most expensive operations
-- Never block this thread!
-
-🧵 JS THREAD:
-- Runs your JavaScript code
-- Handles business logic
-- Can be blocked by heavy computations
-
-🧵 SHADOW THREAD (Fabric):
-- Calculates layouts asynchronously
-- Runs Flexbox algorithms
-- Prepares native view updates
-
-🧵 NATIVE MODULES THREAD:
-- Handles native API calls
-- File system, network requests
-- Device hardware access
-```
-
-**Performance Rules:**
-```javascript
-// ❌ BLOCKS JS THREAD
-const data = heavyComputation(); // 2 seconds
-setState({ data });
-
-// ✅ OFFLOADS TO NATIVE THREAD
-InteractionManager.runAfterInteractions(() => {
-  const data = heavyComputation();
-  setState({ data });
-});
-```
-
-**Follow-up Trap:** *"What happens if you block the main thread?"*
-
-**Answer:** App becomes unresponsive, user sees frozen UI, possible ANR (Android) or watchdog kills (iOS).
+#### ⚠️ Critical Rule
+**NEVER block the Main Thread.** If the main thread is blocked, the UI freezes, leading to a poor user experience.
 
 ---
 
-### 1.8 **Codegen and TypeScript Integration**
+### 1.8 Codegen and TypeScript Integration
 
 **Question:** *"How does React Native's Codegen work with TypeScript for type safety?"*
 
-**Perfect Answer Structure:**
-```
-Codegen generates type-safe native interfaces:
-
-🔧 PROCESS:
-1. TypeScript interfaces → Codegen analysis
-2. Generates native type definitions
-3. Creates TurboModule/Fabric bindings
-4. Ensures JS-Native type safety
-
-📝 TYPE SAFETY LEVELS:
-- Flow types (legacy)
-- TypeScript strict mode
-- Native type validation
-- Runtime type checking
-```
-
-**Implementation:**
-```typescript
-// TurboModule interface
-export interface Spec extends TurboModule {
-  getUser(id: string): Promise<User>;
-  saveData(data: UserData): boolean;
-}
-
-// Codegen generates:
-- Android/Kotlin interfaces
-- iOS/Swift protocols
-- JSI bindings
-- Type validation
-```
-
-**Follow-up Trap:** *"Does Codegen replace manual native module creation?"*
-
-**Answer:** No, Codegen assists but you still write native implementations. It generates boilerplate and ensures type safety.
+#### 🔧 The Workflow
+1. You define a TypeScript interface for your native module.
+2. Codegen parses the interface and generates C++ / Java / Objective-C glue code.
+3. This ensures that the data passed between JS and Native is always valid and type-safe.
 
 ---
 
-### 1.9 **React Native Bridge Communication Patterns**
+### 1.9 React Native Bridge Communication Patterns
 
 **Question:** *"Explain the different communication patterns in React Native's Bridge vs JSI."*
 
-**Perfect Answer Structure:**
-```
-BRIDGE COMMUNICATION (Legacy):
-- Asynchronous JSON-RPC calls
-- Message queue system
-- Batch updates for efficiency
-- Error-prone serialization
-
-JSI COMMUNICATION (Modern):
-- Synchronous method calls
-- Direct object references
-- Host objects and functions
-- Zero-copy data transfer
-
-COMMUNICATION PATTERNS:
-1. Method Calls: JS → Native
-2. Callbacks: Native → JS
-3. Events: Native → JS (continuous)
-4. Promises: Async results
-```
-
-**Performance Comparison:**
-```javascript
-// BRIDGE: Expensive serialization
-NativeModules.APIModule.fetchData()
-  .then(JSON.parse) // Deserialize
-  .then(processData);
-
-// JSI: Direct access
-const apiModule = TurboModuleRegistry.get('APIModule');
-const data = apiModule.fetchDataSync(); // Direct access
-```
+#### 🔄 Communication Flow
+- **Bridge**: Asynchronous, serializable, batched.
+- **JSI**: Synchronous, direct references, zero-copy.
 
 ---
 
-### 1.10 **React Native's Rendering Pipeline**
+### 1.10 React Native's Rendering Pipeline
 
 **Question:** *"Walk through React Native's complete rendering pipeline from JSX to pixels."*
 
-**Perfect Answer Structure:**
-```
-COMPLETE RENDERING PIPELINE:
-
-1️⃣ JSX → React Elements
-   - JSX compiles to React.createElement calls
-   - Creates virtual DOM representation
-
-2️⃣ Reconciliation (React)
-   - Diff algorithm compares old/new trees
-   - Determines what changed
-
-3️⃣ Commit Phase (Fabric)
-   - Creates/updates Shadow Tree
-   - Calculates layouts asynchronously
-
-4️⃣ Mount Phase
-   - Shadow Tree → Native view commands
-   - Updates sent to main thread
-
-5️⃣ Native Rendering
-   - Platform-specific view updates
-   - GPU acceleration for animations
-   - Final pixel rendering
-```
-
-**Performance Bottlenecks:**
-- Step 2: Expensive for large component trees
-- Step 3: Complex layouts block shadow thread
-- Step 4: Bridge congestion in old architecture
-
-**Optimization Strategies:**
-```javascript
-// Memoize expensive computations
-const memoizedValue = useMemo(() => expensiveCalc(props), [deps]);
-
-// Prevent unnecessary re-renders
-const MyComponent = React.memo(({ data }) => <Text>{data}</Text>);
-```
+#### 🏗️ The Pipeline
+1. **JSX** → 2. **React Elements** → 3. **Shadow Tree (Yoga)** → 4. **Native Views** → 5. **Pixels (GPU)**
 
 ---
 
-### 1.11 **RAM Bundles vs Regular Bundles**
+### 1.11 RAM Bundles vs Regular Bundles
 
 **Question:** *"Explain RAM bundles and when you should use them instead of regular bundles."*
 
-**Perfect Answer Structure:**
-```
-RAM BUNDLES optimize memory usage:
-
-📦 REGULAR BUNDLE:
-- Single large JavaScript file
-- Loaded entirely into memory
-- Simple but memory-intensive
-
-🧠 RAM BUNDLE:
-- Pre-executed JavaScript bytecode
-- Modules loaded on-demand
-- Significantly reduced memory footprint
-- Faster app startup
-
-PERFORMANCE IMPACT:
-- 30-50% reduction in memory usage
-- Faster cold starts
-- Smaller initial memory footprint
-```
-
-**When to Use:**
-```javascript
-// Use RAM bundles for:
-- Large apps (>20MB JS)
-- Memory-constrained devices
-- Apps with many features
-- Production deployments
-
-// metro.config.js configuration
-module.exports = {
-  transformer: {
-    getTransformOptions: async () => ({
-      transform: {
-        experimentalImportSupport: false,
-        inlineRequires: false,
-      },
-    }),
-  },
-};
-```
-
-**Follow-up Trap:** *"What's the downside of RAM bundles?"*
-
-**Answer:** More complex bundling process, harder to debug, requires Metro configuration. Use only when memory optimization is critical.
+#### 🧠 RAM (Random Access Modules)
+- Loads only the necessary modules at startup.
+- Great for large apps to reduce initial memory usage.
+- **Downside**: Slightly slower module access after startup.
 
 ---
 
-### 1.12 **React Native's Module Resolution Strategy**
+### 1.12 React Native's Module Resolution Strategy
 
 **Question:** *"How does React Native resolve modules differently from web bundlers?"*
 
-**Perfect Answer Structure:**
-```
-React Native's module resolution prioritizes platform-specific code:
-
-📱 PLATFORM-SPECIFIC RESOLUTION:
-1. index.ios.js / index.android.js
-2. index.native.js
-3. index.js
-4. Fallback to web versions
-
-🔍 HASTE MODULE SYSTEM:
-- Global module registry
-- @providesModule declarations
-- Deterministic module IDs
-- Enables fast native loading
-
-📂 FILE EXTENSIONS PRIORITY:
-- .native.js (platform-agnostic native)
-- .ios.js / .android.js (platform-specific)
-- .js (universal fallback)
-```
-
-**Resolution Example:**
-```javascript
-// File structure:
-// components/Button.ios.js
-// components/Button.android.js
-// components/Button.js
-
-import Button from './components/Button';
-// iOS → Button.ios.js
-// Android → Button.android.js
-```
-
-**Advanced Configuration:**
-```javascript
-// metro.config.js
-module.exports = {
-  resolver: {
-    platforms: ['ios', 'android', 'web'],
-    extensions: ['.ios.js', '.android.js', '.js'],
-  },
-};
-```
+#### 📱 Platform-Specific Extensions
+React Native looks for files in this order:
+1. `Component.ios.js` or `Component.android.js`
+2. `Component.native.js`
+3. `Component.js`
 
 ---
 
-### 1.13 **New Architecture Migration Strategy**
+### 1.13 New Architecture Migration Strategy
 
 **Question:** *"Design a migration strategy for upgrading a large React Native app to the New Architecture."*
 
-**Perfect Answer Structure:**
-```
-PHASED MIGRATION APPROACH:
-
-📅 PHASE 1: Preparation (1-2 weeks)
-- Audit existing native modules
-- Identify performance bottlenecks
-- Set up New Architecture in parallel
-- Create migration testing strategy
-
-📅 PHASE 2: TurboModules Migration (2-4 weeks)
-- Convert high-impact native modules first
-- Performance-critical modules priority
-- Maintain backward compatibility
-- Gradual rollout with feature flags
-
-📅 PHASE 3: Fabric Migration (1-2 weeks)
-- Enable Fabric renderer
-- Test component compatibility
-- Monitor rendering performance
-- Rollback plan ready
-
-📅 PHASE 4: Optimization (1-2 weeks)
-- Remove legacy Bridge code
-- Optimize bundle size
-- Performance monitoring
-- Production deployment
-```
-
-**Risk Mitigation:**
-```javascript
-// Feature flags for gradual rollout
-const useNewArchitecture = __DEV__ ? false : true;
-
-if (useNewArchitecture) {
-  // New Architecture code path
-  const turboModule = TurboModuleRegistry.get('MyModule');
-} else {
-  // Legacy Bridge fallback
-  const result = await NativeModules.MyModule.getData();
-}
-```
+#### 📅 Phased Approach
+1. **Audit**: Identify all custom native modules.
+2. **Preparation**: Upgrade to the latest RN version (0.70+ recommended).
+3. **TurboModules**: Migrate core native modules first.
+4. **Fabric**: Enable the new renderer and test UI consistency.
 
 ---
 
-### 1.14 **React Native's Build System (CMake vs Gradle)**
+### 1.14 React Native's Build System (CMake vs Gradle)
 
 **Question:** *"Explain how React Native integrates with platform-specific build systems."*
 
-**Perfect Answer Structure:**
-```
-React Native bridges platform build systems:
-
-🤖 ANDROID INTEGRATION:
-- Gradle build system
-- CMake for C++ native modules
-- Auto-linking via react-native.config.js
-- Gradle plugin manages dependencies
-
-🍎 IOS INTEGRATION:
-- Xcode build system
-- CocoaPods for dependencies
-- Auto-linking for Swift/Objective-C
-- Xcode project generation
-
-🔧 BUILD PROCESS:
-1. JavaScript bundling (Metro)
-2. Native code compilation
-3. Asset processing
-4. Platform-specific packaging
-5. Code signing and distribution
-```
-
-**Configuration Example:**
-```javascript
-// react-native.config.js
-module.exports = {
-  dependencies: {
-    'react-native-vector-icons': {
-      platforms: {
-        ios: null, // disable iOS
-        android: {
-          sourceDir: './android',
-        },
-      },
-    },
-  },
-};
-```
+- **Android**: Uses Gradle and CMake for C++ code.
+- **iOS**: Uses Xcode and CocoaPods.
 
 ---
 
-### 1.15 **React Native's Hot Reloading vs Live Reloading**
+### 1.15 React Native's Hot Reloading vs Live Reloading
 
 **Question:** *"Compare Hot Reloading, Live Reloading, and Fast Refresh in React Native development."*
 
-**Perfect Answer Structure:**
-```
-THREE RELOADING MECHANISMS:
-
-🔥 FAST REFRESH (Recommended):
-- Preserves component state
-- Updates only changed components
-- Maintains navigation state
-- Works with Hooks and Context
-
-📱 LIVE RELOADING:
-- Full app reload on file change
-- Preserves app state but slower
-- Good for structural changes
-- Legacy, being phased out
-
-♨️ HOT RELOADING:
-- Injects updated code without restart
-- Fastest for UI changes
-- May lose state occasionally
-- Limited to styling changes
-```
-
-**When to Use Each:**
-```javascript
-// Fast Refresh handles these automatically:
-// - Component logic changes
-// - Hook updates
-// - Style changes
-// - Asset imports
-
-// Force full reload for:
-- Navigation structure changes
-- State management setup
-- Native module modifications
-```
-
-**Performance Comparison:**
-- Fast Refresh: ~100-500ms
-- Live Reloading: ~2-5 seconds
-- Hot Reloading: ~1-2 seconds
+- **Fast Refresh**: The modern standard. It's smart enough to preserve state when possible and perform a full reload when necessary.
 
 ---
 
-*Phase 1 continues with 15+ more questions covering advanced topics like concurrent features, experimental APIs, and production optimization strategies. Each question designed for senior-level interviews with real-world implementation details.*
+### 🚀 Next Steps
+*Phase 1 has covered the engine room of React Native. In Phase 2, we move to the UI layer and React Hooks mastery.*
 
 ---
 
----
-[⬅️ Back to Home](../README.md) | [Next Phase: Phase 2 ➡️](phase2-react-fundamentals.md)
+[⬅️ Back to Home](../README.md) | [Next Phase: Phase 02 ➡️](phase2-react-fundamentals.md)
