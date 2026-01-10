@@ -1,13 +1,24 @@
 # Phase 1: Core Architecture & Fundamentals
 
-This phase covers the foundational knowledge of React Native's bridge, the New Architecture (TurboModules/Fabric), and the core concepts that separate React Native from standard web React.
+> **Mastering the engine under the hood.** This phase covers the foundational knowledge of React Native's bridge, the New Architecture (TurboModules/Fabric), and the core concepts that separate React Native from standard web React.
+
+---
+
+## 🗺️ Phase Roadmap
+
+1.  **[The Basics]** - Q1 to Q11: What is RN, Native vs Hybrid, Components, Props/State.
+2.  **[UI & Layout]** - Q12 to Q25: Lifecycle, Styling, Flexbox, Lists, Navigation.
+3.  **[The Engine]** - Q26 to Q35: Threading, Yoga, Metro, Hermes, New Architecture.
+4.  **[Deep Dive]** - Q36 to Q40: Fabric Pipeline, Codegen, JSI, InteractionManager.
 
 ---
 
 ### 📋 Phase Overview
-Before diving into advanced architecture or complex patterns, master the fundamentals that every React Native developer must know. This phase covers the essential building blocks from "What is React Native?" to basic component patterns, ensuring you can confidently discuss the framework's core concepts in any interview.
+Before diving into advanced architecture or complex patterns, master the fundamentals. This phase covers the essential building blocks from "What is React Native?" to the inner workings of the New Architecture.
 
 ---
+
+## 🟢 Section 1: The Basics
 
 ### Q1: WHAT IS MOBILE DEVELOPMENT?
 
@@ -325,6 +336,10 @@ useEffect(() => {
 > [!WARNING]
 > **🪤 Follow-up Trap:** Forgetting the dependency array can cause infinite re-renders or stale closures. Always include dependencies or use ESLint rules to catch this.
 
+---
+
+## 🔵 Section 2: UI & Layout
+
 ### Q12: COMPONENT LIFECYCLE
 
 **Question:** *"How do component lifecycle methods work in functional components?"*
@@ -402,6 +417,15 @@ function App() {
 
 **Question:** *"How do you handle basic navigation between screens in React Native?"*
 
+```mermaid
+graph TD
+    subgraph "Navigation Stack"
+        S3[Profile Screen] -- "Pop / GoBack" --> S2[Home Screen]
+        S2 -- "Push / Navigate" --> S3
+        S1[Splash Screen] -- "Replace" --> S2
+    end
+```
+
 React Native doesn't include navigation by default. You typically use **React Navigation**, the most popular navigation library.
 
 **Basic Stack Navigation:**
@@ -438,6 +462,25 @@ function HomeScreen({ navigation }) {
 ### Q15: FLATLIST VS SCROLLVIEW
 
 **Question:** *"What's the difference between FlatList and ScrollView?"*
+
+```mermaid
+graph TD
+    subgraph "ScrollView (All at once)"
+        S1[Item 1]
+        S2[Item 2]
+        S3[...]
+        S100[Item 100]
+    end
+
+    subgraph "FlatList (Virtualized)"
+        V1[Item 1 - Rendered]
+        V2[Item 2 - Rendered]
+        V3[Item 3 - Rendered]
+        V4[Item 4 - Buffer]
+        V5[Item 5 - Unrendered Memory]
+        V100[Item 100 - Unrendered Memory]
+    end
+```
 
 **FlatList** and **ScrollView** both enable scrolling, but they're optimized for different use cases:
 
@@ -651,6 +694,25 @@ function MyButton() {
 
 **Question:** *"How does Flexbox work in React Native for basic layouts?"*
 
+```mermaid
+graph TD
+    subgraph "Flex Direction: Column (Default)"
+        C1[Item 1] --- C2[Item 2] --- C3[Item 3]
+    end
+
+    subgraph "Flex Direction: Row"
+        R1[Item 1] --- R2[Item 2] --- R3[Item 3]
+    end
+
+    subgraph "Justify Content (Main Axis)"
+        J1[Start] --- J2[Center] --- J3[End] --- J4[Space-Between]
+    end
+
+    subgraph "Align Items (Cross Axis)"
+        A1[Stretch] --- A2[Center] --- A3[Flex-Start]
+    end
+```
+
 React Native uses Flexbox for layout, but with some differences from web CSS. The default direction is `column` (not `row`), and you must specify dimensions.
 
 **Basic Flexbox Layouts:**
@@ -798,6 +860,10 @@ Good performance habits start with the basics. Here are essential tips every Rea
 - **Optimize Images:** Compress images and use appropriate sizes for mobile screens.
 - **Minimize Renders:** Use `React.memo` for components that don't need to re-render frequently.
 - **FlatList for Lists:** Always use `FlatList` instead of `ScrollView` for long lists.
+
+---
+
+## 🟠 Section 3: The Engine
 
 ### Q26: THE THREADING MODEL
 
@@ -1016,6 +1082,121 @@ graph TD
 
 > [!IMPORTANT]
 > **⭐ Senior Insight:** For large images, always use **FastImage** (a third-party library) for better caching and performance. For icons, prefer **Vector Icons** (SVG-based) over raster images to keep the bundle size small and ensure crispness at any scale.
+
+---
+
+## 🟣 Section 4: Deep Dive (New Architecture)
+
+### Q36: THE FABRIC RENDER PIPELINE
+**Question:** *"Can you explain the rendering phases in the New Architecture (Fabric)?"*
+
+Fabric introduces a multi-phase rendering pipeline that allows for synchronous updates and priority-based rendering.
+
+```mermaid
+graph TD
+    subgraph "Phase 1: Render"
+        JS[JS Logic] --> ShadowTree[Shadow Tree Creation]
+    end
+
+    subgraph "Phase 2: Commit"
+        ShadowTree --> Diff[Diffing / Tree Comparison]
+        Diff --> Yoga[Yoga Layout Calculation]
+    end
+
+    subgraph "Phase 3: Mount"
+        Yoga --> NativeTree[Native View Tree]
+        NativeTree --> Screen[Physical Screen Update]
+    end
+
+    style JS fill:#f96
+    style Screen fill:#60a5fa
+```
+
+1.  **Render Phase:** React executes your component logic and creates a "Shadow Tree" (a lightweight representation of the UI).
+2.  **Commit Phase:** The framework compares the new tree with the old one (diffing) and Yoga calculates the layout (sizes and positions).
+3.  **Mount Phase:** The final layout is transformed into actual native views on the screen.
+
+---
+
+### Q37: CODEGEN - THE BRIDGE BUILDER
+**Question:** *"What is Codegen and why is it necessary in the New Architecture?"*
+
+In the legacy architecture, the bridge was "untyped" – you could send any JSON back and forth, leading to runtime crashes. **Codegen** fixes this by generating C++ types from your JavaScript/TypeScript definitions.
+
+```mermaid
+graph LR
+    TS[TS Spec / Interfaces] --> Codegen[Codegen Engine]
+    Codegen --> Cpp[C++ Boilerplate]
+    Codegen --> Java[Java JNI / Obj-C Prototypes]
+    Cpp --> Native[Native Implementation]
+```
+
+-   **Type Safety:** Ensures that JS and Native are always in sync.
+-   **Performance:** Removes the need for runtime validation of bridge data.
+-   **Automation:** Developers only write the spec; Codegen handles the complex C++ glue code.
+
+---
+
+### Q38: JSI (JAVASCRIPT INTERFACE) DEEP DIVE
+**Question:** *"How does JSI enable direct communication between JS and Native?"*
+
+JSI is the heart of the New Architecture. It's a C++ layer that allows the JavaScript engine (Hermes) to hold a **reference** to a C++ object (and vice versa).
+
+```mermaid
+sequenceDiagram
+    participant JS as JS Engine
+    participant JSI as JSI (C++ Layer)
+    participant Native as Native Module
+    
+    Note over JS, Native: Direct Memory Access
+    JS->>JSI: Call function reference
+    JSI->>Native: Execute C++ method
+    Native-->>JSI: Return value
+    JSI-->>JS: Immediate result
+    
+    Note right of JS: No JSON Serialization!
+```
+
+-   **No Serialization:** We no longer convert data to JSON strings to send them over a bridge.
+-   **Synchronous Execution:** You can call a native method and get the result immediately, just like a regular JS function.
+-   **Shared Memory:** JS can directly interact with native memory, which is essential for high-performance features like 60fps animations or large data processing.
+
+---
+
+### Q39: INTERACTIONMANAGER
+**Question:** *"When and why should you use InteractionManager?"*
+
+The JS thread is a single-threaded environment. If you run a heavy task (like a large data sort) while an animation is happening, the animation will stutter.
+
+**Senior Approach:**
+```javascript
+import { InteractionManager } from 'react-native';
+
+const handleExpensiveTask = () => {
+  // Wait for animations (like navigation transitions) to finish
+  InteractionManager.runAfterInteractions(() => {
+    // Perform heavy computation here
+    performDataSort();
+  });
+};
+```
+
+-   **Why:** To ensure "UI responsiveness." Users perceive even small delays during transitions as "lag."
+-   **When:** After navigation transitions, during heavy list rendering, or when processing large API responses.
+
+---
+
+### Q40: BUNDLE SIZE OPTIMIZATION
+**Question:** *"How do you analyze and optimize the bundle size of a React Native app?"*
+
+A large bundle size leads to slower app startup and higher memory usage.
+
+1.  **Analyze:** Use `react-native-bundle-visualizer` to see which libraries are taking up space.
+2.  **Optimize:**
+    -   **Tree Shaking:** Use libraries that support tree shaking (e.g., `lodash-es` instead of `lodash`).
+    -   **Dynamic Imports:** Use `React.lazy` and `Suspense` for large screens that aren't needed immediately.
+    -   **Image Optimization:** Use WebP format and avoid including large high-res images in the bundle (use remote URLs or CDN).
+    -   **Hermes:** Ensure Hermes is enabled, as it produces smaller bytecode bundles.
 
 ---
 
