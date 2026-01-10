@@ -10,7 +10,7 @@ This section outlines essential React Native modules, categorized and prioritize
 
 | Category      | Installation Command                                                                                                | Description                                                                                               | Key Use Cases                                                                                                  |
 |---------------|---------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
-| Most Common   | `npm install @react-navigation/native @react-navigation/native-stack`<br/>(and other navigators like tabs/drawer)       | The standard, flexible, and extensible navigation solution for React Native apps.                         | Authentication flows, tab/drawer navigation, deep linking, screen transitions.                                 |
+| Most Common   | `npm install @react-navigation/native @react-navigation/native-stack` (and others like tabs/drawer) | The standard, flexible, and extensible navigation solution for React Native apps. | Authentication flows, tab/drawer navigation, deep linking, screen transitions. |
 | Most Common   | `npm install zustand` / `npm install @reduxjs/toolkit react-redux`                                                  | Solutions for managing global application state predictably and scalably.                                 | User authentication, global themes, managing complex forms, server data caching.                               |
 | Most Common   | `npm install axios` (Fetch API is built-in)                                                                         | Promise-based HTTP clients for making API requests.                                                       | Fetching/sending data to RESTful APIs, handling authentication headers, error handling for network requests.   |
 | Most Common   | `npm install @react-native-async-storage/async-storage` / `npm install react-native-mmkv`                           | Provides local, persistent key-value storage for applications.                                            | Storing user preferences/settings, persisting authentication tokens, offline data caching for non-sensitive info. |
@@ -50,4 +50,4 @@ This section outlines essential React Native modules, categorized and prioritize
 
 ---
 
-[⬅️ Back to Roadmap](../README.md)
+[⬅️ Back to Roadmap 🏠](../README.md)
