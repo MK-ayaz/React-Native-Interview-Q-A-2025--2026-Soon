@@ -47,6 +47,27 @@ Understanding the different types of mobile apps is fundamental to choosing the 
 - **Native Performance:** Uses native components for UI rendering.
 - **Hot Reload:** Fast development cycle with instant updates.
 
+#### 🏗️ Architecture Visualization (Legacy vs New)
+
+```mermaid
+graph TD
+    subgraph "Legacy Architecture (Bridge)"
+        JS_L[JavaScript Code] <--> B[JSON Bridge]
+        B <--> N_L[Native Modules / UI]
+    end
+
+    subgraph "New Architecture (JSI)"
+        JS_N[JavaScript Code] -- "Direct Call (C++)" --> JSI[JSI - JavaScript Interface]
+        JSI -- "Synchronous" --> N_N[Fabric / TurboModules]
+    end
+
+    style B fill:#f96,stroke:#333,stroke-width:2px
+    style JSI fill:#00c853,stroke:#333,stroke-width:2px
+```
+
+> [!IMPORTANT]
+> **⭐ Senior Insight:** While traditional React Native relies on a **JSON-based Bridge**, the framework is shifting towards the **New Architecture** using **JSI (JavaScript Interface)**. This allows direct, synchronous communication between JavaScript and Native code, eliminating the serialization overhead that often bottlenecks high-performance apps.
+
 > [!TIP]
 > **🟢 Beginner Tip:** React Native compiles to truly native apps, not web apps wrapped in native containers. Your JavaScript code runs on a JavaScript thread, but the UI is rendered using actual native components.
 
@@ -60,6 +81,9 @@ React Native is built on JavaScript, so you need to understand these core concep
 - **Functions:** Arrow functions, regular functions, callbacks.
 - **Arrays & Objects:** Array methods, object destructuring.
 - **ES6+ Features:** Promises, async/await, spread operator.
+
+> [!IMPORTANT]
+> **⭐ Senior Insight:** Understanding **Closures** is critical in React Native, especially when working with `useEffect` and `useCallback`. Stale closures are a common source of bugs where a function "remembers" an old version of a state or prop.
 
 ```javascript
 // Variables
@@ -96,6 +120,9 @@ While both use React's component-based architecture and JSX syntax, they target 
 | **Components** | `<div>`, `<span>` | `<View>`, `<Text>` |
 | **Styling** | CSS | StyleSheet API |
 | **Output** | HTML/CSS/JS | Native mobile apps |
+
+> [!IMPORTANT]
+> **⭐ Senior Insight:** One of the biggest mental shifts for web developers is the lack of a "DOM". In React Native, there is no `window` or `document` object. Global variables like `navigator` are polyfilled, but you cannot use libraries that rely on DOM manipulation (like jQuery or most web-based charting libs).
 
 > [!WARNING]
 > **🪤 Follow-up Trap:** Don't say "React Native is just React for mobile" - they're different frameworks that happen to share similar syntax and patterns. React Native doesn't use HTML or CSS.
@@ -339,6 +366,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
+```
+
+> [!IMPORTANT]
+> **⭐ Senior Insight:** Use `StyleSheet.create` because it sends the style objects to the native side **only once** and refers to them by an ID. If you use inline styles `style={{ flex: 1 }}`, a new object is created on every render, which can lead to unnecessary memory allocation and re-renders in complex UIs. Also, learn `StyleSheet.flatten()` for merging styles dynamically.
 
 function App() {
   return (
@@ -752,6 +783,165 @@ Good performance habits start with the basics. Here are essential tips every Rea
 - **Optimize Images:** Compress images and use appropriate sizes for mobile screens.
 - **Minimize Renders:** Use `React.memo` for components that don't need to re-render frequently.
 - **FlatList for Lists:** Always use `FlatList` instead of `ScrollView` for long lists.
+
+### Q26: THE THREADING MODEL
+
+**Question:** *"Explain the threading model in React Native. What threads exist and what are their roles?"*
+
+React Native apps run on three primary threads. Understanding these is crucial for debugging performance issues:
+
+```mermaid
+sequenceDiagram
+    participant JS as JavaScript Thread
+    participant Shadow as Shadow Thread (Yoga)
+    participant UI as Main/UI Thread
+
+    Note over JS: Business Logic & Touch Handling
+    JS->>Shadow: Send Layout Props (Flexbox)
+    Note over Shadow: Calculate Coordinates (C++)
+    Shadow->>UI: Update Native Views
+    Note over UI: Render Actual Components
+```
+
+1.  **JavaScript Thread (JS Thread):** This is where your business logic, API calls, and touch handling live. It runs the JavaScript engine (Hermes or JSC).
+2.  **Main Thread (UI Thread):** This is the native thread responsible for rendering the actual UI, handling native animations, and processing platform events (like rotations).
+3.  **Shadow Thread (Layout Thread):** This thread calculates the layout of your components using the **Yoga** engine. It transforms your Flexbox styles into native coordinates that the UI thread can understand.
+
+> [!IMPORTANT]
+> **⭐ Senior Insight:** If the JS thread is busy with a heavy computation (like sorting a 10,000-item array), the app will become unresponsive to touches, even though the UI thread might still be able to run native animations (like a loading spinner). This is why we offload heavy work to native modules or use `InteractionManager`.
+
+### Q27: APP STATES & LIFECYCLE
+
+**Question:** *"How do you handle the application lifecycle (e.g., when the app goes to the background)?"*
+
+Unlike web apps, mobile apps can be suspended or put into the background. React Native provides the `AppState` API to monitor these changes.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Active: Launch
+    Active --> Background: User Swaps App
+    Background --> Active: User Returns
+    Active --> Inactive: Phone Call / System Modal
+    Inactive --> Active: Dismiss Modal
+    Background --> [*]: System Terminates (Low Memory)
+```
+
+-   **active:** The app is running in the foreground.
+-   **background:** The user is on another app or the home screen.
+-   **inactive:** (iOS only) The app is transitioning between foreground and background (e.g., during a phone call).
+
+```javascript
+import { AppState } from 'react-native';
+
+useEffect(() => {
+  const subscription = AppState.addEventListener('change', nextAppState => {
+    if (nextAppState === 'active') {
+      console.log('App has come to the foreground!');
+    }
+    console.log('AppState:', nextAppState);
+  });
+
+  return () => subscription.remove();
+}, []);
+```
+
+### Q28: METRO BUNDLER & FAST REFRESH
+
+**Question:** *"What is Metro and what is Fast Refresh?"*
+
+-   **Metro:** The JavaScript bundler for React Native. It takes all your JS files and combines them into a single file (the bundle) that the device can run.
+-   **Fast Refresh:** A React Native feature that allows you to see changes to your code almost instantly without losing the state of your components.
+
+> [!TIP]
+> **🟢 Beginner Tip:** If your app is behaving weirdly after many changes, you can often fix it by "resetting the cache" with `npx react-native start --reset-cache`.
+
+### Q29: FOLDER STRUCTURE FOR SCALABILITY
+
+**Question:** *"What is a good folder structure for a large-scale React Native project?"*
+
+While React Native doesn't enforce a structure, a common senior-level pattern is:
+
+```text
+src/
+  ├── assets/      # Images, fonts, localizations
+  ├── components/  # Reusable UI components (Atomic design)
+  ├── navigation/  # Navigators and route definitions
+  ├── screens/     # Screen components (connected to state)
+  ├── services/    # API calls, storage, third-party SDKs
+  ├── store/       # Redux/Zustand/State management
+  ├── utils/       # Helper functions, constants, types
+  └── hooks/       # Custom React hooks
+```
+
+### Q30: THE ROLE OF YOGA
+
+**Question:** *"What is Yoga and why does React Native use it?"*
+
+**Yoga** is a cross-platform layout engine developed by Meta. It implements a subset of Flexbox in C++. React Native uses it to calculate the layout of components on both iOS and Android, ensuring consistent UI behavior across platforms without needing to write platform-specific layout logic.
+
+### Q31: DEBUGGING TOOLS
+
+**Question:** *"What tools do you use for debugging React Native apps?"*
+
+1.  **In-App Developer Menu:** (Cmd+D / Shake) Provides access to Reload, Debug JS Remotely, etc.
+2.  **React DevTools:** For inspecting component hierarchy, props, and state.
+3.  **Flipper (Legacy/Maintenance):** A powerful desktop app for inspecting network requests, logs, and layout.
+4.  **Chrome DevTools:** Used when debugging JS remotely (legacy architecture).
+5.  **Console.log:** The classic approach, visible in terminal or IDE.
+
+### Q32: TYPESCRIPT IN REACT NATIVE
+
+**Question:** *"Why is TypeScript recommended for React Native development?"*
+
+TypeScript provides static typing, which catch bugs at compile-time rather than runtime. In a mobile environment, where crashes are more disruptive than web refreshes, this is critical.
+
+-   **Type Safety for Props:** Ensures components receive the correct data.
+-   **Navigation Typing:** Prevents passing incorrect parameters between screens.
+-   **Better IDE Support:** Autocomplete and refactoring are much safer.
+
+### Q33: NEW ARCHITECTURE: FABRIC & TURBOMODULES
+
+**Question:** *"What are Fabric and TurboModules in the New Architecture?"*
+
+-   **Fabric:** The new rendering system. It's written in C++ and allows for synchronous UI updates and better integration with host platform features.
+-   **TurboModules:** The new way to write native modules. They are lazy-loaded (only loaded when needed) and allow for synchronous communication between JS and Native.
+
+> [!IMPORTANT]
+> **⭐ Senior Insight:** The key benefit of the New Architecture is the removal of the asynchronous bridge. This allows for smoother animations, faster startup times, and easier integration with native codebases.
+
+### Q34: HERMES ENGINE
+
+**Question:** *"What is Hermes and why is it the default engine for React Native?"*
+
+**Hermes** is an open-source JavaScript engine optimized for running React Native on mobile. It was developed by Meta to improve app performance.
+
+-   **Bytecode Pre-compilation:** Hermes compiles JavaScript into bytecode during the build process, which reduces app startup time.
+-   **Lower Memory Usage:** It's designed to be lightweight, which is critical for low-end mobile devices.
+-   **Efficient Garbage Collection:** Provides better performance for long-running apps.
+
+> [!TIP]
+> **🟢 Beginner Tip:** You can check if your app is using Hermes by looking at the `global.HermesInternal` variable.
+
+### Q35: ASSET MANAGEMENT (IMAGES & FONTS)
+
+**Question:** *"How do you handle images and custom fonts in React Native?"*
+
+-   **Images:** Use the `require()` syntax for local images and `{uri: '...'}` for remote images. Local images are automatically bundled with the app.
+-   **Fonts:** Custom fonts are added to the native projects (iOS/Android) and then referenced by their family name in `StyleSheet`.
+
+```javascript
+// Local image
+<Image source={require('./assets/logo.png')} />
+
+// Remote image (requires width and height)
+<Image 
+  source={{uri: 'https://example.com/photo.jpg'}} 
+  style={{width: 200, height: 200}} 
+/>
+```
+
+> [!IMPORTANT]
+> **⭐ Senior Insight:** For large images, always use **FastImage** (a third-party library) for better caching and performance. For icons, prefer **Vector Icons** (SVG-based) over raster images to keep the bundle size small and ensure crispness at any scale.
 
 ---
 
