@@ -80,6 +80,27 @@ In React Native, this precision is vital for maintaining 60FPS in complex lists 
 
 **Question:** How do you categorize state in a large-scale React Native application?
 
+```mermaid
+mindmap
+  root((State Management))
+    Local State
+      useState
+      useReducer
+      ::icon(fa fa-user)
+    Global Client State
+      Zustand
+      Redux Toolkit
+      ::icon(fa fa-globe)
+    Server State
+      React Query
+      RTK Query
+      ::icon(fa fa-server)
+    Native State
+      Shared Values (Reanimated)
+      Device Sensors
+      ::icon(fa fa-mobile)
+```
+
 Not all state is created equal. A senior developer categorizes state into four main types to choose the right tool for each:
 
 - **Local State:** UI-only logic (`useState` / `useReducer`).

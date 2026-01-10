@@ -7,6 +7,20 @@ Master testing strategies for React Native apps from basic unit tests to advance
 ### Q1: [STRATEGY] The Testing Pyramid vs. The Testing Trophy
 *"How do you balance Unit, Integration, and E2E tests in a React Native project?"*
 
+```mermaid
+graph TD
+    subgraph "The Testing Trophy (High Confidence)"
+        Static[Static: ESLint/TS] --- Unit[Unit: Jest]
+        Unit --- Integration[Integration: RNTL]
+        Integration --- E2E[E2E: Detox]
+    end
+    
+    style Integration fill:#c8e6c9,stroke:#2e7d32
+    style Static fill:#eeeeee
+    style Unit fill:#fff9c4
+    style E2E fill:#ffcdd2
+```
+
 A senior strategy often shifts from the traditional **Testing Pyramid** to the **Testing Trophy**, which prioritizes **Integration Tests**. In React Native, this means testing how components interact with their state, navigation, and API clients using RNTL.
 
 - **Unit Tests:** Pure functions, utilities, and Redux/Zustand logic (Jest).

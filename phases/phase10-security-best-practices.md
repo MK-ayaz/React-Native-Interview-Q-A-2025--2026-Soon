@@ -13,6 +13,21 @@ Security is not a feature; it's a foundation. For Senior developers, protecting 
 ### Q1: [SECURE STORAGE] Secure Storage Alternatives
 *"Why is `AsyncStorage` considered insecure for sensitive data, and what are the alternatives?"*
 
+```mermaid
+graph LR
+    subgraph "Insecure (AsyncStorage)"
+        Data1[Sensitive Token] --> Disk1[Plain Text JSON]
+        Disk1 --> Risk1[Root Access / Backup Exploit]
+    end
+
+    subgraph "Secure (Keychain/Keystore)"
+        Data2[Sensitive Token] --> Encrypt[Hardware Encryption]
+        Encrypt --> Hardware[Secure Enclave / TEE]
+        Hardware --> Auth{Biometric Required?}
+        Auth -- Yes --> Release[Token Released to JS]
+    end
+```
+
 `AsyncStorage` stores data in plain text on the device's disk. On rooted Android devices or through certain backup exploits on iOS, this data can be easily read by malicious actors.
 
 | Platform | Technology | Recommended Library |

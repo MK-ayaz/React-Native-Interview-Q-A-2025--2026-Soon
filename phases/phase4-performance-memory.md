@@ -12,6 +12,24 @@ Master React Native performance optimization from basic list rendering to advanc
 ### Q1: [LIST RENDERING] FlatList vs FlashList: The Recycling Revolution
 **Question:** Why is Shopify's FlashList preferred over FlatList for high-performance apps, and how does it work internally?
 
+```mermaid
+graph LR
+    subgraph "FlatList (Mount/Unmount)"
+        A1[Item 1] --> B1{Scroll}
+        B1 --> C1[Destroy Item 1]
+        C1 --> D1[Create Item 20]
+    end
+
+    subgraph "FlashList (Recycle)"
+        A2[Item 1] --> B2{Scroll}
+        B2 --> C2[Keep View 1]
+        C2 --> D2[Update View 1 with Item 20 Data]
+    end
+
+    style C1 fill:#ffcdd2
+    style D2 fill:#c8e6c9
+```
+
 #### 🔄 Cell Recycling vs. Destruction
 - **FlatList**: Destroys off-screen components and re-creates them as the user scrolls. This causes "blanking" during fast scrolls because JS can't keep up with component creation.
 - **FlashList**: Reuses (recycles) the underlying native views. It only updates the data (props) of an existing view, which is significantly faster than creating a new one.

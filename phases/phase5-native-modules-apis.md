@@ -11,6 +11,22 @@ A true Senior React Native Engineer knows when the JavaScript world ends and the
 ### Q1: [NEW ARCHITECTURE] TurboModules vs. Legacy Bridge
 **Question:** Why were TurboModules introduced, and how do they solve the startup performance issues of the legacy Bridge?
 
+```mermaid
+sequenceDiagram
+    participant JS as JavaScript
+    participant JSI as JSI (C++)
+    participant TM as TurboModule (Native)
+    
+    Note over JS, TM: New Architecture Flow
+    JS->>JSI: Direct Call (Synchronous)
+    JSI->>TM: Native Method Execution
+    TM-->>JSI: Return Value
+    JSI-->>JS: JS Object/Value
+    
+    Note right of JS: No JSON Serialization
+    Note right of JS: Lazy Loaded
+```
+
 #### 🚀 Lazy Loading & Initialization
 In the legacy architecture, all native modules are initialized during app startup, even if they aren't used. TurboModules are **lazy-loaded**, meaning they are only initialized the first time they are called from JS, significantly reducing TTI.
 

@@ -7,6 +7,23 @@
 ### Q1: [ARCHITECTURE] Reanimated vs. Animated API
 *"Why is the legacy Animated API considered insufficient for modern, complex React Native gestures?"*
 
+```mermaid
+sequenceDiagram
+    participant JS as JS Thread (React)
+    participant UI as UI Thread (Native)
+    participant Worklet as Reanimated Worklet (Secondary JS)
+    
+    Note over JS, UI: Legacy Bridge Animation
+    JS-->>UI: JSON Serialization (Every Frame)
+    UI-->>JS: Event Data
+    
+    Note over JS, Worklet: Reanimated 3 Flow
+    JS->>Worklet: Register Worklet
+    UI->>Worklet: Direct Touch Event
+    Worklet->>UI: Update Shared Value / Styles
+    Note right of Worklet: Synchronous (60/120 FPS)
+```
+
 The legacy `Animated` API is bridge-dependent. Every frame update or gesture event must be serialized as JSON, sent across the bridge to the JS thread, processed, and sent back to the native thread. If the JS thread is busy (e.g., processing a large API response or rendering a complex list), the animation will drop frames, leading to a "janky" experience.
 
 **Reanimated 3 advantages:**

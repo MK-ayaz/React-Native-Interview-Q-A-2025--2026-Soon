@@ -62,7 +62,23 @@ class Counter extends Component {
 ### Q3: What are React Hooks and why were they introduced?
 **Hooks** are functions that let you "hook into" React state and lifecycle features from functional components. They were introduced to solve problems with class components:
 
-- **Reusing logic** between components without render props or HOCs.
+```mermaid
+graph TD
+    subgraph "Functional Component Lifecycle"
+        A[Render] --> B[Commit Phase]
+        B --> C[Run useEffects]
+        C --> D{State Change?}
+        D -- Yes --> A
+        D -- No --> E[Idle]
+    end
+
+    subgraph "Hook Rules"
+        R1[Only Call Hooks at the Top Level]
+        R2[Only Call Hooks from React Functions]
+    end
+```
+
+-   **Reusing logic** between components without render props or HOCs.
 - **Complex components** split across lifecycle methods.
 - **Related code** grouped together instead of scattered.
 - **No more confusing** `this` binding issues.

@@ -12,6 +12,27 @@ A Senior Engineer doesn't just "ship code"; they build **Reliable Delivery Syste
 ### Q1: [PIPELINE] The Gold Standard Pipeline
 *"What does a 'Gold Standard' CI/CD pipeline look like for a React Native project?"*
 
+```mermaid
+graph TD
+    subgraph "Verification Phase (Fast)"
+        PR[Pull Request] --> Lint[Lint/TS]
+        Lint --> Unit[Unit Tests]
+        Unit --> Int[Integration Tests]
+    end
+
+    subgraph "Build Phase (Slow)"
+        Int --> Match[Fastlane Match]
+        Match --> Build[Build .aab / .ipa]
+        Build --> Artifacts[Upload Binaries]
+    end
+
+    subgraph "Distribution Phase"
+        Artifacts --> TF[TestFlight / Play Console]
+        TF --> QA[QA Team Approval]
+        QA --> Phased[Phased Release 1% -> 100%]
+    end
+```
+
 A mature pipeline is divided into stages to provide fast feedback and ensure binary stability.
 
 1.  **Commit Stage:** Linting (ESLint), Type checking (TSC), and Unit tests (Jest).

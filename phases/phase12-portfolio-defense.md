@@ -76,6 +76,21 @@ A senior portfolio isn't just a "Todo list" app. It must show:
 ### Q6: [DEBT] Managing Technical Debt
 *"How do you decide when to pay down technical debt versus shipping new features?"*
 
+```mermaid
+quadrantChart
+    title Technical Debt Prioritization
+    x-axis Low Effort --> High Effort
+    y-axis Low Impact --> High Impact
+    quadrant-1 Refactor Now (High ROI)
+    quadrant-2 Strategic Project
+    quadrant-3 Minor Cleanup
+    quadrant-4 Avoid (Low ROI)
+    "Messy Navigation": [0.2, 0.9]
+    "Brittle Auth Flow": [0.4, 0.8]
+    "Old Class Components": [0.7, 0.4]
+    "Typo in Comments": [0.1, 0.1]
+```
+
 **The Strategy:**
 - **Interest Rate:** If a piece of debt is slowing down every new feature (e.g., a messy navigation structure), it has a high "interest rate" and should be prioritized.
 - **Risk:** If the debt is in a critical path (e.g., a brittle authentication flow), it's a security risk.

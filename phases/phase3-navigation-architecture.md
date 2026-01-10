@@ -16,6 +16,23 @@ Building on React fundamentals, this phase covers navigation patterns, app archi
 
 **Question:** Design a navigation structure for a large-scale app that includes Auth, Tabs, and Nested Stacks.
 
+```mermaid
+graph TD
+    Root[Root Stack Navigator] -->|State: Loading| Splash[Splash Screen]
+    Root -->|State: Unauthenticated| Auth[Auth Stack]
+    Root -->|State: Authenticated| Main[Main Tab Navigator]
+    
+    Auth --> Login[Login Screen]
+    Auth --> Signup[Signup Screen]
+    
+    Main --> Home[Home Stack]
+    Main --> Search[Search Stack]
+    Main --> Profile[Profile Stack]
+    
+    Home --> Feed[Feed Screen]
+    Home --> Details[Details Screen]
+```
+
 > [!TIP]
 > **Root Navigator Strategy:**
 > A senior approach uses a single Root Stack that conditionally renders either an `AuthStack` or a `MainNavigator` based on the global authentication state.

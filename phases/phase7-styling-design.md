@@ -69,6 +69,22 @@ const scale = (size: number) => (width / 375) * size;
 ### Q5: [FLEXBOX] Yoga Engine & Layout Performance
 **Question:** What is 'Layout Thrashing' in React Native, and how does Yoga handle it?
 
+```mermaid
+graph TD
+    JS[JS Style Props] --> Bridge[Bridge / JSI]
+    Bridge --> Yoga[Yoga Layout Engine (C++)]
+    Yoga --> Calc[Calculate Node Tree]
+    Calc --> Layout[Generate Layout Coordinates]
+    Layout --> Native[Native UI View Updates]
+    
+    subgraph "Yoga Optimization"
+        Calc --> Cache{Layout Cached?}
+        Cache -- Yes --> Layout
+        Cache -- No --> Process[Recursive Calculation]
+        Process --> Layout
+    end
+```
+
 #### 📐 Recursive Calculations
 Yoga calculates layouts recursively. "Thrashing" occurs when multiple state updates trigger multiple layout passes in a single frame. Yoga optimizes this by **caching layout results**, but deeply nested trees still increase the TTI (Time To Interactive).
 
