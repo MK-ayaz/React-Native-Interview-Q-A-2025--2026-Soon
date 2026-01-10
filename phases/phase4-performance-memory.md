@@ -382,4 +382,4 @@ function Search() {
 
 ---
 
-[⬅️ Phase 03: Navigation](phase3-navigation-architecture.md) | [Phase 05: Native Modules ➡️](phase5-native-modules-apis.md)
+[⬅️ Phase 03: Navigation](./phase3-navigation-architecture.md) | [Next Phase ➡️](./phase5-native-modules-apis.md)

@@ -306,4 +306,4 @@ A quick senior trick is to apply temporary background colors to suspected compon
 
 ---
 
-[⬅️ Phase 06: State Management](phase6-state-management.md) | [Phase 08: Animations ➡️](phase8-animations-gestures.md)
+[⬅️ Phase 06: State Management](./phase6-state-management.md) | [Next Phase ➡️](./phase8-animations-gestures.md)

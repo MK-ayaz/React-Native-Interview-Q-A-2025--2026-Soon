@@ -391,4 +391,4 @@ It reduces boilerplate and ensures that if you add a new provider (like a new Re
 
 ---
 
-[⬅️ Phase 08: Animations](phase8-animations-gestures.md) | [Phase 10: Security ➡️](phase10-security-best-practices.md)
+[⬅️ Phase 08: Animations](./phase8-animations-gestures.md) | [Next Phase ➡️](./phase10-security-best-practices.md)

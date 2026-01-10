@@ -439,4 +439,4 @@ If a user types 'A', then 'AB' quickly, the request for 'A' might finish *after*
 > - Master the **New Architecture** (TurboModules/Fabric) in [Phase 5](./phase5-native-modules-apis.md).
 > - Explore **Performance Optimization** in [Phase 4](./phase4-performance-memory.md).
 
-[⬅️ Phase 05: Native Modules](phase5-native-modules-apis.md) | [Phase 07: Styling ➡️](phase7-styling-design.md)
+[⬅️ Phase 05: Native Modules](./phase5-native-modules-apis.md) | [Next Phase ➡️](./phase7-styling-design.md)

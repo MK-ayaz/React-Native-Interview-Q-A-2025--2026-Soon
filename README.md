@@ -8,14 +8,30 @@
 
 ## 🏗️ Core Pillars
 
-### Internals
-Master JSI, TurboModules, and Fabric to understand the engine under the hood.
-
-### Performance
-Achieve 60fps with Reanimated 3, Skia, and advanced memory profiling.
-
-### Security
-Defense-in-depth with SSL Pinning, Keychain, and Biometric security.
+```mermaid
+mindmap
+  root((React Native Architect))
+    Internals
+      JSI
+      TurboModules
+      Fabric
+      Hermes
+    Performance
+      Reanimated 3
+      FlashList
+      Memory Profiling
+      Skia
+    Security
+      SSL Pinning
+      Keychain
+      Biometrics
+      Obfuscation
+    Architecture
+      Monorepos
+      Design Tokens
+      Testing Trophy
+      CI/CD
+```
 
 ---
 

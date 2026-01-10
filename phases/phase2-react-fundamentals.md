@@ -1038,4 +1038,4 @@ function ConfirmDialog() {
 
 ---
 
-[⬅️ Phase 01: Core Fundamentals](./phase1-core-fundamentals.md) | [Phase 03: Navigation ➡️](./phase3-navigation-architecture.md)
+[⬅️ Phase 01: Core Fundamentals](./phase1-core-fundamentals.md) | [Next Phase ➡️](./phase3-navigation-architecture.md)

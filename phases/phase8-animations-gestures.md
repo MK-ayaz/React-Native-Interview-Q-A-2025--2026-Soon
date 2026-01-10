@@ -991,4 +991,4 @@ The main bottlenecks are **JS thread blocking** and **over-communication between
 
 ---
 
-[⬅️ Phase 07: Styling](phase7-styling-design.md) | [Phase 09: Testing ➡️](phase9-testing-qa.md)
+[⬅️ Phase 07: Styling](./phase7-styling-design.md) | [Next Phase ➡️](./phase9-testing-qa.md)

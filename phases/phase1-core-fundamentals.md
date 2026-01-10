@@ -329,6 +329,18 @@ useEffect(() => {
 
 **Question:** *"How do component lifecycle methods work in functional components?"*
 
+```mermaid
+graph TD
+    Start[Component Mounts] --> Render[Render Phase]
+    Render --> Commit[Commit Phase / Update UI]
+    Commit --> Effect[Run useEffect]
+    Effect --> Idle[Idle / Waiting for Change]
+    Idle --> Update{Props/State Change?}
+    Update -- Yes --> Render
+    Idle --> Unmount[Component Unmounts]
+    Unmount --> Cleanup[Run useEffect Cleanup]
+```
+
 Functional components use Hooks instead of lifecycle methods. The main lifecycle events are handled by `useEffect`:
 
 | Class Component | Functional Component | When it runs |
@@ -369,7 +381,7 @@ const styles = StyleSheet.create({
 ```
 
 > [!IMPORTANT]
-> **⭐ Senior Insight:** Use `StyleSheet.create` because it sends the style objects to the native side **only once** and refers to them by an ID. If you use inline styles `style={{ flex: 1 }}`, a new object is created on every render, which can lead to unnecessary memory allocation and re-renders in complex UIs. Also, learn `StyleSheet.flatten()` for merging styles dynamically.
+> **⭐ Senior Insight:** Use `StyleSheet.create` because it sends the style objects to the native side **only once** and refers to them by an ID. If you use inline styles `style={{ flex: 1 }}`, a new object is created on every render, which can lead to unnecessary memory allocation and re-renders in complex UIs. Also, learn `StyleSheet.flatten()` for merging styles dynamically without losing the benefits of the StyleSheet cache.
 
 function App() {
   return (
@@ -435,6 +447,9 @@ function HomeScreen({ navigation }) {
 | **Use Case** | Small, fixed content | Large/dynamic lists |
 | **Performance** | Issues with many items | Smooth for 1000+ items |
 | **Complexity** | Simple to use | More complex but performant |
+
+> [!IMPORTANT]
+> **⭐ Senior Insight:** For extremely large lists, always implement `getItemLayout`. By providing the height of your items upfront, you skip the measurement phase on the native side, which drastically improves scrolling performance and reduces "blank spaces" when scrolling fast. Also, consider `initialNumToRender` and `windowSize` to fine-tune memory consumption.
 
 **FlatList Basic Usage:**
 ```javascript
@@ -849,6 +864,20 @@ useEffect(() => {
 
 **Question:** *"What is Metro and what is Fast Refresh?"*
 
+```mermaid
+graph LR
+    JS[JS Files] --> Metro[Metro Bundler]
+    Assets[Assets] --> Metro
+    Metro --> Bundle[index.bundle]
+    Bundle --> Device[iOS / Android Device]
+    
+    subgraph "Development"
+        CodeChange[Code Change] --> FastRefresh[Fast Refresh]
+        FastRefresh --> HotUpdate[Update specific module]
+        HotUpdate --> Device
+    end
+```
+
 -   **Metro:** The JavaScript bundler for React Native. It takes all your JS files and combines them into a single file (the bundle) that the device can run.
 -   **Fast Refresh:** A React Native feature that allows you to see changes to your code almost instantly without losing the state of your components.
 
@@ -858,6 +887,23 @@ useEffect(() => {
 ### Q29: FOLDER STRUCTURE FOR SCALABILITY
 
 **Question:** *"What is a good folder structure for a large-scale React Native project?"*
+
+```mermaid
+graph TD
+    Root[Project Root] --> src[src/]
+    src --> Assets[assets/]
+    src --> Components[components/]
+    src --> Navigation[navigation/]
+    src --> Screens[screens/]
+    src --> Services[services/]
+    src --> Store[store/]
+    src --> Hooks[hooks/]
+    src --> Utils[utils/]
+    
+    Components --> Atoms[Atoms]
+    Components --> Molecules[Molecules]
+    Components --> Organisms[Organisms]
+```
 
 While React Native doesn't enforce a structure, a common senior-level pattern is:
 
@@ -876,6 +922,15 @@ src/
 ### Q30: THE ROLE OF YOGA
 
 **Question:** *"What is Yoga and why does React Native use it?"*
+
+```mermaid
+graph LR
+    JS[JS Flexbox Styles] --> Bridge[Bridge / JSI]
+    Bridge --> Yoga[Yoga Layout Engine]
+    Yoga --> Cpp[C++ Calculations]
+    Cpp --> Layout[Layout Coordinates]
+    Layout --> Native[Native View Updates]
+```
 
 **Yoga** is a cross-platform layout engine developed by Meta. It implements a subset of Flexbox in C++. React Native uses it to calculate the layout of components on both iOS and Android, ensuring consistent UI behavior across platforms without needing to write platform-specific layout logic.
 
@@ -913,6 +968,25 @@ TypeScript provides static typing, which catch bugs at compile-time rather than 
 
 **Question:** *"What is Hermes and why is it the default engine for React Native?"*
 
+```mermaid
+graph TD
+    subgraph "Standard Engine (JSC)"
+        JS1[JS Code] --> Bundle1[Bundle]
+        Bundle1 --> Device1[Device]
+        Device1 --> Parse1[Parse & Compile JS]
+        Parse1 --> Run1[Execute]
+    end
+
+    subgraph "Hermes Engine"
+        JS2[JS Code] --> Compile[Pre-compile to Bytecode]
+        Compile --> Bundle2[Hermes Bytecode Bundle]
+        Bundle2 --> Device2[Device]
+        Device2 --> Run2[Immediate Execution]
+    end
+    
+    style Compile fill:#f9f,stroke:#333,stroke-width:2px
+```
+
 **Hermes** is an open-source JavaScript engine optimized for running React Native on mobile. It was developed by Meta to improve app performance.
 
 -   **Bytecode Pre-compilation:** Hermes compiles JavaScript into bytecode during the build process, which reduces app startup time.
@@ -945,9 +1019,4 @@ TypeScript provides static typing, which catch bugs at compile-time rather than 
 
 ---
 
-> [!TIP]
-> **Next Steps:** After mastering these fundamentals, move to **Phase 2: React Fundamentals** to dive deeper into hooks, context, and advanced state management.
-
----
-
-**[Back to Top](#phase-1-core-architecture--fundamentals)** | [Phase 02: React Fundamentals ➡️](./phase2-react-fundamentals.md)
+[⬅️ Roadmap](../README.md) | [Next Phase ➡️](./phase2-react-fundamentals.md)

@@ -751,4 +751,4 @@ Performance budgets prevent deployments that degrade user experience:
 
 ---
 
-[⬅️ Phase 10: Security](phase10-security-best-practices.md) | [Phase 12: Defense ➡️](phase12-portfolio-defense.md)
+[⬅️ Phase 10: Security](./phase10-security-best-practices.md) | [Next Phase ➡️](./phase12-portfolio-defense.md)

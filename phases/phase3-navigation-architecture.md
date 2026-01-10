@@ -815,5 +815,5 @@ function StackNavigator() {
 
 ---
 
-[⬅️ Phase 02: React Fundamentals](phase2-react-fundamentals.md) | [Phase 04: Performance ➡️](phase4-performance-memory.md)
+[⬅️ Phase 02: React Fundamentals](./phase2-react-fundamentals.md) | [Next Phase ➡️](./phase4-performance-memory.md)
 
