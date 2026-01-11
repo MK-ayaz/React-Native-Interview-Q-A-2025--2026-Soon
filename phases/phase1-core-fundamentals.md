@@ -398,6 +398,7 @@ const styles = StyleSheet.create({
 > [!IMPORTANT]
 > **⭐ Senior Insight:** Use `StyleSheet.create` because it sends the style objects to the native side **only once** and refers to them by an ID. If you use inline styles `style={{ flex: 1 }}`, a new object is created on every render, which can lead to unnecessary memory allocation and re-renders in complex UIs. Also, learn `StyleSheet.flatten()` for merging styles dynamically without losing the benefits of the StyleSheet cache.
 
+```typescript
 function App() {
   return (
     <View style={styles.container}>
